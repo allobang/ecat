@@ -20,20 +20,20 @@ function updatePlayerSession($mysqli, $sessionId, $forceUpdate = false) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $sessionId = $_SESSION['current_session_id'] ?? null;
 
+    $sessionId = $_SESSION['current_session_id'] ?? null;
     // Early exit for quiz completion triggers
     if (isset($_POST['quiz_finished']) || isset($_POST['time_up'])) {
         $wasUpdateSuccessful = updatePlayerSession($mysqli, $sessionId, true);
         echo json_encode(['quiz_finished' => true, 'success' => $wasUpdateSuccessful, 'message' => 'Quiz ended.']);
         exit;
     }
-
+    
     // Proceed with question handling
     $questionId = $_POST['question_id'] ?? '';
     $selectedAnswer = $_POST['answer'] ?? '';
-    $isCorrect = false;
 
+    $isCorrect = false;
     if ($questionId && $selectedAnswer) {
         $query = "SELECT answer FROM quizquestions WHERE id = ?";
         if ($stmt = $mysqli->prepare($query)) {

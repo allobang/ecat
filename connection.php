@@ -5,7 +5,7 @@
 $host = 'localhost';
 $username = 'root';
 $password = '';
-$database = 'mathematricks2';
+$database = 'entranceExam';
 
 // Create a new mysqli connection instance
 $mysqli = new mysqli($host, $username, $password, $database);

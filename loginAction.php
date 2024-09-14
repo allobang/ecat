@@ -1,47 +1,62 @@
 <?php
-session_start(); // Start the session at the beginning
-include('connection.php');
+// Start a new session
+session_start();
+
+// Include your database connection file
+require_once 'connection.php';
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    // Get the passcode from the form
+    $passcode = $mysqli->real_escape_string($_POST['password']);
 
-    // Prepare statement to prevent SQL injection
-    $stmt = $mysqli->prepare("SELECT id, firstname, lastname, grade, section, usertype, password FROM users WHERE username = ?");
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    // Prepare a SQL query to find the applicant with the matching passcode
+    $sql = "SELECT id, lastname, firstname, middlename FROM student_applications WHERE exam_pass_code = ?";
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        // Verify the password
-        if (password_verify($password, $row['password'])) {
-            // Password is correct, store user details in session variables
-            $_SESSION['logged_in'] = true;
-            $_SESSION['user_id'] = $row['id'];
-            $_SESSION['username'] = $username;
-            $_SESSION['firstname'] = $row['firstname'];
-            $_SESSION['lastname'] = $row['lastname'];
-            $_SESSION['grade'] = $row['grade'];
-            $_SESSION['section'] = $row['section'];
-            $_SESSION['usertype'] = $row['usertype'];
-            
-            if($_SESSION['usertype']=='student'){
-                header("Location: play.php");
-            }else{
-                header("Location: play.php");
+    // Prepare statement
+    if ($stmt = $mysqli->prepare($sql)) {
+        // Bind variables to the prepared statement as parameters
+        $stmt->bind_param("s", $param_passcode);
+
+        // Set parameters
+        $param_passcode = $passcode;
+
+        // Attempt to execute the prepared statement
+        if ($stmt->execute()) {
+            // Store result
+            $stmt->store_result();
+
+            // Check if passcode exists, if yes then verify passcode
+            if ($stmt->num_rows == 1) {
+                // Bind result variables
+                $stmt->bind_result($id, $lastname, $firstname,$middlename);
+
+                if ($stmt->fetch()) {
+                    // Passcode is correct, so start a new session
+                    session_start();
+                    // Store data in session variables
+                    $_SESSION["logged_in"] = true;
+                    $_SESSION["user_id"] = $id;
+                    $_SESSION["first_name"] = $firstname;
+                    $_SESSION["last_name"] = $lastname;
+                    $_SESSION["middle_name"] = $middlename;
+                    $_SESSION["name"] = $_SESSION["first_name"] . ' ' . $_SESSION["middle_name"] . ' ' . $_SESSION["last_name"];
+                    // Redirect user to exam page
+                    header("location: ready.php");
+                }
+            } else {
+                // Display an error message if passcode doesn't exist
+                echo "No account found with that passcode.";
             }
-            // Redirect to a secure page
         } else {
-            // Password is not correct
-            echo "Invalid username or password";
+            echo "Oops! Something went wrong. Please try again later.";
         }
-    } else {
-        echo "Invalid username or password";
-    }
 
-    $stmt->close();
+        // Close statement
+        $stmt->close();
+    }
 }
-$conn->close();
+
+// Close connection
+$mysqli->close();
 ?>

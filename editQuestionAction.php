@@ -11,7 +11,8 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Extract the id from the form data
     $id = $_POST['id']; // Make sure you're getting the id correctly
-
+    // var_dump($_POST);
+    // die();
     $grade = $_POST['grade'];
     $subject = $_POST['subject'];
     $difficulty = $_POST['difficulty'];

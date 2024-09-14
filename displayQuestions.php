@@ -7,7 +7,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     exit;
 }
 // Fetch all questions from the database
-$query = "SELECT * FROM `quizquestions` ORDER BY `created_at` DESC";
+$query = "SELECT * FROM `quizquestions` ORDER BY `created_at`";
 $result = $mysqli->query($query);
 
 // Check if the query was successful

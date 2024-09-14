@@ -153,7 +153,7 @@ $mysqli->close();
                                                         <label for="choice4">Choice 4:</label>
                                                         <input type="text" class="form-control" id="choice4"
                                                             name="choice4"
-                                                            value="<?php echo htmlspecialchars($question['answer']); ?>">
+                                                            value="<?php echo htmlspecialchars($question['choice4']); ?>">
                                                     </div>
                                                 </div>
                                             </div>

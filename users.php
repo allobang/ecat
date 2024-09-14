@@ -1,21 +1,30 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+if (!isset ($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     header("Location: login.php");
     exit;
 }
 
-// Rest of your index.php code...
+// Include the database connection file
+include 'connection.php';
+
+// Fetch student applications from the database
+$sql = "SELECT lastname, firstname, course_first_preference, exam_pass_code FROM student_applications";
+$result = $mysqli->query($sql);
+
+$studentApplications = [];
+if ($result->num_rows > 0) {
+    // output data of each row
+    while ($row = $result->fetch_assoc()) {
+        $studentApplications[] = $row;
+    }
+} else {
+    echo "0 results";
+}
 ?>
 
 <!doctype html>
-<!-- 
-* Bootstrap Simple Admin Template
-* Version: 2.1
-* Author: Alexis Luna
-* Website: https://github.com/alexis-luna/bootstrap-simple-admin-template
--->
 <html lang="en">
 
 <?php include 'layout/head.php'; ?>
@@ -24,37 +33,60 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     <div class="wrapper">
         <?php include 'layout/side.php'; ?>
         <div id="body" class="active">
-        <?php include 'layout/nav.php'; ?>
+            <?php include 'layout/nav.php'; ?>
             <div class="content">
                 <div class="container">
                     <!-- title -->
-                    <div class="row">
-                        <div class="col-md-12 page-header">
-                            <div class="page-pretitle">List</div>
-                            <h2 class="page-title">Users</h2>
-                        </div>
+                    <div class="page-title">
+                        <h3>Student Applications
+                        </h3>
+
+                        <button type="button" class="btn btn-primary mb-2"
+                            onclick="window.location.href='addStudent.php';">Add</button>
                     </div>
-                    <!-- end title -->
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="content">
-                                    <div class="head">
-                                    </div>
-                                    <div class="canvas-wrapper">
-
-                                            <!-- CONTNENT OF PAGE HERE -->
-
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="box box-primary">
+                        <div class="box-body">
+                            <table width="100%" class="table table-hover" id="dataTables-example">
+                                <thead>
+                                    <tr>
+                                        <th>#</th> <!-- Added column for row numbers -->
+                                        <th>Name</th>
+                                        <th>Course First Preference</th>
+                                        <th>Exam Pass Code</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php $rowNumber = 1; ?> <!-- Initialize row number -->
+                                    <?php foreach ($studentApplications as $application): ?>
+                                        <tr>
+                                            <td>
+                                                <?= $rowNumber ?>
+                                            </td> <!-- Display row number -->
+                                            <td>
+                                                <?= htmlspecialchars($application['lastname'] . ', ' . $application['firstname']) ?>
+                                            </td>
+                                            <td>
+                                                <?= htmlspecialchars($application['course_first_preference']) ?>
+                                            </td>
+                                            <td>
+                                                <?= htmlspecialchars($application['exam_pass_code']) ?>
+                                            </td>
+                                            <td class="text-end">
+                                                <!-- Optionally, you can add action buttons here -->
+                                            </td>
+                                        </tr>
+                                        <?php $rowNumber++; ?> <!-- Increment row number -->
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
+
                     </div>
-                    
+
                 </div>
             </div>
         </div>
     </div>
-    
+
     <?php include 'layout/foot.php'; ?>
